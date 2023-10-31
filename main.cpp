@@ -12,6 +12,7 @@
 #include "DownAndOutOption.h"
 #include "Portfolio.h"
 #include "Matrix.h"
+#include "MyObject.h"
 
 using namespace std;
 
@@ -33,5 +34,6 @@ int main() {
     testPortfolio();
     testPutOption();
     testUpAndOutOption();
+    testMyObject();
     return 0;
 }

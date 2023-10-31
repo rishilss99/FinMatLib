@@ -442,7 +442,7 @@ double integral( RealFunction& f,
     double x = a + 0.5*h;
     double total = 0.0;
     for (int i=0; i<nPoints; i++) {
-        double y = f.evaluate(x);
+        double y = f(x);
         total+=y;
         x+=h;
     }
@@ -582,10 +582,10 @@ static void testPrctile() {
 /*  To test the integral function, we need a function
     to integrate */
 class SinFunction : public RealFunction {
-    double evaluate( double x );
+    double operator()( double x ) const;
 };
 
-double SinFunction::evaluate( double x ) {
+double SinFunction::operator()( double x ) const {
     return sin(x);
 }
 
@@ -603,7 +603,7 @@ static void testIntegral() {
 static void testIntegralVersion2() {
 
     class Sin : public RealFunction {
-        double evaluate( double x ) {
+        double operator()( double x )  const{
             return sin(x);
         }
     };
