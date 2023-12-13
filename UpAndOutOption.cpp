@@ -48,13 +48,14 @@ static void testPerformance() {
     
     MonteCarloPricer pricer;
     clock_t start = clock();
-    pricer.nScenarios = 10000;
+    pricer.nScenarios = 100000;
     pricer.nSteps = 365;
 
     double price = pricer.price( o, model );
     double elapsed = (double)(clock()-start);
     std::cout<< "Price "<<price<<"\n";
     std::cout<< "Pricing took "<<(elapsed/CLOCKS_PER_SEC)<<"s\n";
+	
 }
 
 

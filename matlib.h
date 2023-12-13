@@ -44,6 +44,31 @@ Matrix randn( int rows, int cols );
 void rng( const std::string& setting );
 
 /**
+ *  Exponentiate a matrix
+ */
+inline Matrix exp(const Matrix& m ) {
+	Matrix ret = m;
+	ret.exp();
+	return ret;
+}
+
+/**
+ *  Pointwise product
+ */
+inline Matrix dotTimes(Matrix& a, const Matrix& b) {
+	Matrix ret = a;
+	ret.times(b);
+	return ret;
+}
+
+
+/*  Matrix transpose */
+Matrix transpose(const Matrix& m);
+/*  Cholesky decomposition */
+Matrix chol(const Matrix& m);
+
+
+/**
  *  Computes the cumulative
  *  distribution function of the
  *  normal distribution
@@ -79,8 +104,6 @@ Matrix zeros( int rows, int cols );
  *   Creates a matrix of ones
  */
 Matrix ones( int rows, int cols );
-
-
 
 
 

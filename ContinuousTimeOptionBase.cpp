@@ -5,12 +5,9 @@
 #include "matlib.h"
 #include "testing.h"
 
-using namespace std;
-
-double ContinuousTimeOptionBase::price(const BlackScholesModel &model) const
-{
+double ContinuousTimeOptionBase::price( const MultiStockModel& model ) const {
     MonteCarloPricer pricer;
-    return pricer.price(*this, model);
+    return pricer.price( *this, model );
 }
 
 //////////////////////////////
@@ -19,13 +16,12 @@ double ContinuousTimeOptionBase::price(const BlackScholesModel &model) const
 //
 //////////////////////////////
 
-static void testPrice()
-{
+static void testPrice() {
     rng("default");
 
     BlackScholesModel bsm;
-    bsm.volatility = 0.1;
-    bsm.stockPrice = 100;
+    bsm.volatility= 0.1;
+    bsm.stockPrice=100;
 
     CallOption callOption;
     callOption.setStrike(100);
@@ -36,31 +32,16 @@ static void testPrice()
     knockoutOption.setMaturity(1.0);
     knockoutOption.setBarrier(1000);
 
-    ContinuousTimeOptionBase &o1 = callOption;
-    ContinuousTimeOptionBase &o2 = knockoutOption;
+    ContinuousTimeOptionBase& o1=callOption;
+    ContinuousTimeOptionBase& o2=knockoutOption;
 
-    double p1 = o1.price(bsm);
-    double p2 = o2.price(bsm);
+	MultiStockModel msm(bsm);
+    double p1 = o1.price( msm );
+	double p2 = o2.price( msm );
 
-    ASSERT_APPROX_EQUAL(p1, p2, 0.1);
+    ASSERT_APPROX_EQUAL( p1, p2, 0.1);
 }
 
-static void testOptionDebugPrint()
-{
-    UpAndOutOption upo;
-    upo.setStrike(100.0);
-    upo.setMaturity(1.0);
-    upo.setBarrier(110.0);
-    cout << upo;
-
-    CallOption co;
-    co.setStrike(200.0);
-    co.setMaturity(2.0);
-    cout << co;
-}
-
-void testContinuousTimeOptionBase()
-{
-    TEST(testPrice);
-    TEST(testOptionDebugPrint);
+void testContinuousTimeOptionBase() {
+    TEST( testPrice );
 }

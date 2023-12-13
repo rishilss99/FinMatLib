@@ -18,8 +18,11 @@ public:
     /*  Calculate the payoff of the option given
         a history of prices */
     virtual Matrix payoff(
-        const Matrix& stockPrices
+        const MarketSimulation& simulation
         ) const = 0;
     /*  Is the option path-dependent?*/
     virtual bool isPathDependent() const = 0;
+	/*  What stocks does the contract depend upon? */
+	virtual std::set<std::string>
+		getStocks() const = 0;
 };

@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "ContinuousTimeOption.h"
-#include "BlackScholesModel.h"
+#include "MultiStockModel.h"
 
 class MonteCarloPricer {
 public:
@@ -12,9 +12,12 @@ public:
     int nScenarios;
     /*  The number of steps in the calculation */
     int nSteps;
-    /*  Price the option */
+    /*  Price a path dependent option */
     double price( const ContinuousTimeOption& option,
-                  const BlackScholesModel& model );
+                  const BlackScholesModel& model ) const;
+	/*  Price a path dependent option */
+	double price(const ContinuousTimeOption& option,
+		const MultiStockModel& model) const;
 
 };
 

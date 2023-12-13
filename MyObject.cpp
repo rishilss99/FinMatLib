@@ -110,6 +110,17 @@ static void testTwoObjectsAdd()
     MyObject d = c;
 }
 
+static void testVectorPushBack()
+{
+    MyObject a;
+    auto vectorPushBackFunc = [](MyObject &a)
+    {
+        vector<MyObject> vec;
+        vec.push_back(a);
+    };
+    vectorPushBackFunc(a);
+}
+
 
 void testMyObject()
 {
@@ -118,4 +129,5 @@ void testMyObject()
     TEST(testTwoObjectsCopy);
     TEST(testTwoObjectsStrangeCopy);
     TEST(testTwoObjectsAdd);
+    TEST(testVectorPushBack);
 }

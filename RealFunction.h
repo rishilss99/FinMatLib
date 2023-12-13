@@ -5,12 +5,11 @@
  *   be evaluated at a real number to give
  *   a real number
  */
-class RealFunction
-{
+class RealFunction {
 public:
     /*  A virtual destructor */
-    virtual ~RealFunction(){};
+    virtual ~RealFunction() {};
     /*  This method is abstract, there is
         no definition */
-    virtual double operator()(double x) const = 0;
+    virtual double evaluate( double x ) = 0;
 };

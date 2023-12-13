@@ -6,13 +6,16 @@
 #include "PieChart.h"
 #include "LineChart.h"
 #include "BlackScholesModel.h"
+#include "MultiStockModel.h"
 #include "Histogram.h"
 #include "MonteCarloPricer.h"
 #include "UpAndOutOption.h"
 #include "DownAndOutOption.h"
 #include "Portfolio.h"
 #include "Matrix.h"
-#include "MyObject.h"
+#include "HashMap.h"
+#include "MargrabeOption.h"
+
 
 using namespace std;
 
@@ -20,8 +23,9 @@ int main() {
 
     testMatrix();
     testMatlib();
-    testBlackScholesModel();
-    testGeometry();
+    testMultiStockModel();
+	testBlackScholesModel();
+	testGeometry();
     testPieChart();
     testCallOption();
     testPutOption();
@@ -34,6 +38,7 @@ int main() {
     testPortfolio();
     testPutOption();
     testUpAndOutOption();
-    testMyObject();
+    testHashMap();
+    testMargrabeOption();
     return 0;
 }

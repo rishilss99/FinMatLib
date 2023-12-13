@@ -9,7 +9,9 @@ Matrix PutOption::payoffAtMaturity( const Matrix& stockAtMaturity ) const {
 }
 
 double PutOption::price(
-        const BlackScholesModel& bsm ) const {
+        const MultiStockModel& msm ) const {
+	BlackScholesModel bsm =
+		msm.getBlackScholesModel(getStock());
     double S = bsm.stockPrice;
     double K = getStrike();
     double sigma = bsm.volatility;
@@ -51,7 +53,9 @@ static void testPutOptionPrice() {
     bsm.riskFreeRate = 0.05;
     bsm.stockPrice = 100.0;
 
-    double price = putOption.price( bsm );
+	MultiStockModel msm(bsm);
+
+    double price = putOption.price( msm );
     ASSERT_APPROX_EQUAL( price, 3.925, 0.01);
 }
 

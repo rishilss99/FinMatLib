@@ -442,7 +442,7 @@ double integral( RealFunction& f,
     double x = a + 0.5*h;
     double total = 0.0;
     for (int i=0; i<nPoints; i++) {
-        double y = f(x);
+        double y = f.evaluate(x);
         total+=y;
         x+=h;
     }
@@ -468,7 +468,38 @@ Matrix ones( int rows, int cols ) {
     return m;
 }
 
+Matrix transpose(const Matrix& in) {
+	Matrix ret(in.nCols(), in.nRows(), false);
+	for (int i = 0; i < in.nRows(); i++) {
+		for (int j = 0; j < in.nCols(); j++) {
+			ret(j, i) = in(i, j);
+		}
+	}
+	return ret;
+}
 
+/*  Compute the cholesky decomposition */
+Matrix chol(const Matrix& A) {
+	int n = A.nRows();
+	ASSERT(n == A.nCols());
+	Matrix L(n, n);
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j <i ; j++) {
+			double s = A(i, j);
+			for (int k = 0; k < j; k++) {
+				s -= L(i, k)*L(j, k);
+			}
+			L(i, j) = s / L(j, j);
+		}
+		double s = A(i, i);
+		for (int k = 0; k < i ; k++) {
+			s -= L(i, k)*L(i, k);
+		}
+		ASSERT(s >= 0); /* A must be positive definite */
+		L(i, i) = sqrt(s);
+	}
+	return L;
+}
 
 
 ///////////////////////////////////////////////
@@ -582,10 +613,10 @@ static void testPrctile() {
 /*  To test the integral function, we need a function
     to integrate */
 class SinFunction : public RealFunction {
-    double operator()( double x ) const;
+    double evaluate( double x );
 };
 
-double SinFunction::operator()( double x ) const {
+double SinFunction::evaluate( double x ) {
     return sin(x);
 }
 
@@ -603,7 +634,7 @@ static void testIntegral() {
 static void testIntegralVersion2() {
 
     class Sin : public RealFunction {
-        double operator()( double x )  const{
+        double evaluate( double x ) {
             return sin(x);
         }
     };
@@ -654,6 +685,19 @@ static void testSortCols() {
     expected.assertEquals( sortCols( m ), 0.001);
 }
 
+static void testTranspose() {
+	Matrix m("3;2;1");
+	Matrix expected("3,2,1");
+	expected.assertEquals(transpose(m), 0.001);
+}
+
+static void testChol() {
+	Matrix m("3,1,2;1,4,-1;2,-1,5");
+	Matrix c = chol(m);
+	Matrix product = c*transpose(c);
+	m.assertEquals( product, 0.001);
+}
+
 
 void testMatlib() {
     TEST( testLinspace );
@@ -673,4 +717,6 @@ void testMatlib() {
     TEST( testMinOverCols );
     TEST( testSortRows );
     TEST( testSortCols );
+	TEST( testTranspose );
+	TEST( testChol );
 }

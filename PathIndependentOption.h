@@ -26,5 +26,3 @@ public:
         return false;
     };
 };
-
-std::ostream &operator<<(std::ostream &out, const PathIndependentOption &option);

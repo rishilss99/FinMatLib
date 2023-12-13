@@ -5,22 +5,11 @@
 #include <iostream>
 #include <stdlib.h>
 #include <cassert>
-#include <cstdlib>
-#include <cxxabi.h>
-#include <memory>
 
 /*  Is debugging currently enabled */
 bool isDebugEnabled();
 /*  Enabled/disable debug */
 void setDebugEnabled( bool enabled );
-
-std::string demangle(const char* name);
-
-template <class T>
-std::string objectType(const T &o)
-{
-    return demangle(typeid(o).name());
-}
 
 /*  Log an information statement */
 #define INFO( A ) { \

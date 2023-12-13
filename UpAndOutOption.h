@@ -8,5 +8,8 @@ public:
         const Matrix& prices ) const;
 };
 
+typedef std::shared_ptr<UpAndOutOption> SPUpAndOutOption;
+typedef std::shared_ptr<const UpAndOutOption> SPCUpAndOutOption;
+
 
 void testUpAndOutOption();

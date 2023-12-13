@@ -11,7 +11,8 @@ Matrix CallOption::payoffAtMaturity( const Matrix& stockAtMaturity ) const {
 
 
 double CallOption::price( 
-        const BlackScholesModel& bsm ) const {
+        const MultiStockModel& msm ) const {
+	BlackScholesModel bsm = msm.getBlackScholesModel(getStock());
     double S = bsm.stockPrice;
     double K = getStrike();
     double sigma = bsm.volatility;
@@ -47,7 +48,9 @@ static void testCallOptionPrice() {
     bsm.riskFreeRate = 0.05;
     bsm.stockPrice = 100.0;
 
-    double price = callOption.price( bsm );
+	MultiStockModel msm(bsm);
+
+    double price = callOption.price( msm );
     ASSERT_APPROX_EQUAL( price, 4.046, 0.01);
 }
 

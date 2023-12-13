@@ -23,7 +23,3 @@ public:
 private:
     double barrier;
 };
-
-std::ostream &operator<<(std::ostream &out, const KnockoutOption &option);
-
-void testKnockoutDebug();

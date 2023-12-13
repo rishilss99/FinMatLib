@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "BlackScholesModel.h"
+#include "MultiStockModel.h"
 #include "PathIndependentOption.h"
 
 class CallOption : public PathIndependentOption {
@@ -11,7 +11,7 @@ public:
         of scenarios */
     Matrix payoffAtMaturity( const Matrix& stockAtMaturity ) const;
 
-    double price( const BlackScholesModel& bsm )
+    double price( const MultiStockModel& bsm )
         const;
 };
 

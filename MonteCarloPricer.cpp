@@ -12,16 +12,28 @@ MonteCarloPricer::MonteCarloPricer() :
 }
 
 double MonteCarloPricer::price(
+	const ContinuousTimeOption& option,
+	const BlackScholesModel& model) const {
+	auto stocks = option.getStocks();
+	assert(stocks.size() == 1);
+	MultiStockModel msm(model);
+	return price(option, msm);
+}
+
+double MonteCarloPricer::price(
         const ContinuousTimeOption& option,
-        const BlackScholesModel& model ) {
+        const MultiStockModel& model ) const {
     int nSteps = this->nSteps;
     if (!option.isPathDependent()) {
         nSteps = 1;
     }
     double total = 0.0;
+
+	MultiStockModel subModel = model.getSubmodel(
+		option.getStocks());
     
     // We price at most one million scenarios at a time to avoid running out of memory
-    int batchSize = 10000000/nSteps;
+    int batchSize = 1000000/nSteps;
     if (batchSize<=0) {
         batchSize = 1;
     }
@@ -34,18 +46,18 @@ double MonteCarloPricer::price(
             thisBatch = scenariosRemaining;
         }
 
-        Matrix paths= model.
+        MarketSimulation sim = subModel.
             generateRiskNeutralPricePaths(
                 option.getMaturity(),
                 thisBatch,
                 nSteps );
-        Matrix payoffs = option.payoff( paths );
+        Matrix payoffs = option.payoff( sim );
         total+= sumCols( payoffs ).asScalar();
         scenariosRemaining-=thisBatch;
     }
     double mean = total/nScenarios;
-    double r = model.riskFreeRate;
-    double T = option.getMaturity() - model.date;
+    double r = model.getRiskFreeRate();
+    double T = option.getMaturity() - model.getDate();
     return exp(-r*T)*mean;
 }
 
@@ -69,9 +81,11 @@ static void testPriceCallOption() {
     m.drift = 0.1;
     m.date = 1;
 
+	MultiStockModel msm(m);
+
     MonteCarloPricer pricer;
     double price = pricer.price( c, m );
-    double expected = c.price( m );
+    double expected = c.price( msm );
     ASSERT_APPROX_EQUAL( price, expected, 0.1 );
 }
 
