@@ -54,6 +54,23 @@ static void testCallOptionPrice() {
     ASSERT_APPROX_EQUAL( price, 4.046, 0.01);
 }
 
+// static void testRealCallOptionPrice() {
+//     CallOption callOption;
+//     callOption.setStrike( 3750.0 );
+//     callOption.setMaturity( 1.0 );
+    
+//     BlackScholesModel bsm;
+//     bsm.date = 1.0;
+//     bsm.volatility = 0.3155;
+//     bsm.riskFreeRate = 0.0380;
+//     bsm.stockPrice = 4768.0;
+
+// 	MultiStockModel msm(bsm);
+
+//     double price = callOption.price( msm );
+//     ASSERT_APPROX_EQUAL( price, 1343.4, 0.01);
+// }
+
 void testCallOption() {
     TEST( testCallOptionPrice );
 }

@@ -3,6 +3,8 @@
 #include "matlib.h"
 #include "LineChart.h"
 
+extern template class LineChart<double>;
+
 using namespace std;
 
 
@@ -110,7 +112,7 @@ void Histogram::writeAsHTML(ostream& out) const {
 	Matrix fencePosts, heights, x, y;
 	histogramData(data, numBuckets, fencePosts, heights);
 	fencePostsToPlotPoints(fencePosts, heights, x, y);
-	LineChart lc;
+	LineChart<double> lc;
 	lc.setTitle(title);
 	lc.setSeries(x.colVector(), y.colVector());
 	lc.writeAsHTML(out);

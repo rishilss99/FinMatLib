@@ -55,33 +55,38 @@ static void writeLineChartData( ostream& out,
     out<<"]);\n";
 }
 
-LineChart::LineChart() :
+template<typename T>
+LineChart<T>::LineChart() :
   title("A LineChart") {
 }
 
-void LineChart::setTitle( const string& t ) {
+template<typename T>
+void LineChart<T>::setTitle( const string& t ) {
     title = t;
 }
 
-void LineChart::setSeries( const vector<double>& xVec, const vector<double>& yVec ) {
+template<typename T>
+void LineChart<T>::setSeries( const vector<T>& xVec, const vector<T>& yVec ) {
     x = xVec;
     y = yVec;
 }
 
-void LineChart::writeAsHTML( ostream& out ) const {
+template<typename T>
+void LineChart<T>::writeAsHTML( ostream& out ) const {
     writeTopBoilerPlateOfLineChart( out );
     writeLineChartData( out, x, y );
     writeBottomBoilerPlateOfLineChart( out, title );
 }
 
-void LineChart::writeAsHTML( const string& file ) const {
+template<typename T>
+void LineChart<T>::writeAsHTML( const string& file ) const {
     ofstream out;
     out.open( file.c_str() );
     writeAsHTML( out );
     out.close();
 }
 
-
+template class LineChart<double>;
 
 //////////////////////////////
 //
@@ -111,6 +116,7 @@ static void testWriteLineChartData() {
     cout << expected;
     ASSERT( actual==expected );
 }
+
 
 void testLineChart() {
     TEST( testWriteLineChartData );

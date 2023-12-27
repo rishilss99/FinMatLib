@@ -15,6 +15,8 @@
 #include "Matrix.h"
 #include "HashMap.h"
 #include "MargrabeOption.h"
+#include "RectangleRulePricer.h"
+#include "DataProcessorAndPlot.h"
 
 
 using namespace std;
@@ -40,5 +42,7 @@ int main() {
     testUpAndOutOption();
     testHashMap();
     testMargrabeOption();
+    testRectangleRulePricer();
+    testDataProcessorAndPlot();
     return 0;
 }
