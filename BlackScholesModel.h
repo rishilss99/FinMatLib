@@ -13,11 +13,13 @@ public:
 	double date;
 
 	Matrix generatePricePaths(
+		std::mt19937& rng,
 		double toDate,
 		int nPaths,
 		int nSteps) const;
 
 	Matrix generateRiskNeutralPricePaths(
+		std::mt19937& rng,
 		double toDate,
 		int nPaths,
 		int nSteps) const;

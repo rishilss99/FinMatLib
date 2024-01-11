@@ -13,11 +13,10 @@
 #include "DownAndOutOption.h"
 #include "Portfolio.h"
 #include "Matrix.h"
-#include "HashMap.h"
+#include "Executor.h"
+#include "threadingexamples.h"
 #include "MargrabeOption.h"
 #include "RectangleRulePricer.h"
-#include "DataProcessorAndPlot.h"
-
 
 using namespace std;
 
@@ -39,10 +38,10 @@ int main() {
     testContinuousTimeOptionBase();
     testPortfolio();
     testPutOption();
-    testUpAndOutOption();
-    testHashMap();
-    testMargrabeOption();
-    testRectangleRulePricer();
-    testDataProcessorAndPlot();
+	testExecutor();
+	testThreadingExamples();
+	testUpAndOutOption();
+	testMargrabeOption();
+	testRectangleRulePricer();
     return 0;
 }

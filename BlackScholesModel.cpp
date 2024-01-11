@@ -18,28 +18,30 @@ BlackScholesModel::BlackScholesModel() :
  */
 Matrix BlackScholesModel::
             generateRiskNeutralPricePaths(
+		mt19937& rng,
         double toDate,
         int nPaths,
         int nSteps ) const {
 	MultiStockModel msm(*this);
 	MarketSimulation sim
 		= msm.generateRiskNeutralPricePaths(
-			toDate, nPaths, nSteps);
-	return *sim.getStockPaths(MultiStockModel::DEFAULT_STOCK);
+			rng, toDate, nPaths, nSteps);
+	return *sim.getStockPrices(MultiStockModel::DEFAULT_STOCK);
 }
 
 /**
 *  Creates a price path according to the model parameters
 */
 Matrix BlackScholesModel:: generatePricePaths(
+		mt19937& rng,
 		double toDate,
 		int nPaths,
 		int nSteps) const {
 	MultiStockModel msm(*this);
 	MarketSimulation sim
 		= msm.generatePricePaths(
-		toDate, nPaths, nSteps);
-	return *sim.getStockPaths(MultiStockModel::DEFAULT_STOCK);
+		rng, toDate, nPaths, nSteps);
+	return *sim.getStockPrices( MultiStockModel::DEFAULT_STOCK);
 }
 
 
@@ -53,7 +55,7 @@ Matrix BlackScholesModel:: generatePricePaths(
 ////////////////////////////////
 
 void testRiskNeutralPricePath() {
-    rng("default");
+	mt19937 rng;
 
     BlackScholesModel bsm;
     bsm.riskFreeRate = 0.05;
@@ -65,7 +67,8 @@ void testRiskNeutralPricePath() {
     int nsteps = 5;
     double maturity = 4.0;
     Matrix paths = 
-        bsm.generateRiskNeutralPricePaths( maturity,
+        bsm.generateRiskNeutralPricePaths( rng,
+										   maturity,
                                             nPaths,
                                             nsteps );
     Matrix finalPrices = paths.col( nsteps-1 );
@@ -74,6 +77,9 @@ void testRiskNeutralPricePath() {
 }
 
 void testVisually() {
+
+	mt19937 rng;
+
     BlackScholesModel bsm;
     bsm.riskFreeRate = 0.05;
     bsm.volatility = 0.1;
@@ -83,7 +89,8 @@ void testVisually() {
     int nSteps = 1000;
     double maturity = 4.0;
 
-    Matrix path = bsm.generatePricePaths( maturity,
+    Matrix path = bsm.generatePricePaths( rng,
+										  maturity,
                                          1,
                                          nSteps );
     double dt = (maturity-bsm.date)/nSteps;

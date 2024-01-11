@@ -11,7 +11,7 @@ MultiStockModel::MultiStockModel(
 	const BlackScholesModel& bsm) {
 
 	int nStocks = 1;
-	stockToIndex[DEFAULT_STOCK] = 0;
+	stockCodeToIndex[DEFAULT_STOCK] = 0;
 	stockNames.push_back(DEFAULT_STOCK);
 
 	drifts = Matrix(nStocks, 1);
@@ -42,7 +42,7 @@ MultiStockModel::MultiStockModel(std::vector<std::string> stocks,
 	this->covarianceMatrix = covarianceMatrix;
 	int i = 0;
 	for (auto& s : stocks) {
-		stockToIndex[s] = i++;
+		stockCodeToIndex[s] = i++;
 	}
 }
 
@@ -53,15 +53,14 @@ MultiStockModel MultiStockModel::getSubmodel(
 	int n = stocks.size();
 	Matrix drifts(n, 1);
 	Matrix stockPrices(n, 1);
-	vector<string> newStocks(stocks.begin(),
-							 stocks.end());
+	vector<string> newStocks(stocks.begin(), stocks.end());
 	Matrix cov(n, n);
 
 	int newIndex = 0;
 	for (auto& stock : stocks) {
 		int idx = getIndex(stock);
 		drifts(newIndex) = this->drifts(idx);
-		stockPrices(newIndex) =this->stockPrices(idx);
+		stockPrices(newIndex) = this->stockPrices(idx);
 		newIndex++;
 	}
 
@@ -76,8 +75,7 @@ MultiStockModel MultiStockModel::getSubmodel(
 		}
 		i++;
 	}
-	MultiStockModel ret(newStocks, stockPrices,
-		                drifts, cov);
+	MultiStockModel ret(newStocks, stockPrices, drifts, cov);
 	ret.setDate(getDate());
 	ret.setRiskFreeRate(getRiskFreeRate());
 	return ret;
@@ -100,20 +98,22 @@ BlackScholesModel MultiStockModel::getBlackScholesModel(
 /*  Returns a simulation up to the given date
 in the P measure */
 MarketSimulation MultiStockModel::generatePricePaths(
+	mt19937& rng,
 	double toDate,
 	int nPaths,
 	int nSteps) const {
-	return generatePricePaths(toDate,nPaths,nSteps,drifts);
+	return generatePricePaths(rng, toDate,nPaths,nSteps,drifts);
 }
 
 /*  Returns a simulation up to the given date
 in the Q measure */
 MarketSimulation MultiStockModel::generateRiskNeutralPricePaths(
+	mt19937& rng,
 	double toDate,
 	int nPaths,
 	int nSteps) const {
 	Matrix riskNeutralDrifts = ones(drifts.nRows(), 1)*riskFreeRate;
-	return generatePricePaths(toDate, nPaths, nSteps, riskNeutralDrifts);
+	return generatePricePaths(rng, toDate, nPaths, nSteps, riskNeutralDrifts);
 }
 
 
@@ -121,6 +121,7 @@ MarketSimulation MultiStockModel::generateRiskNeutralPricePaths(
 *  Creates a price path according to the model parameters
 */
 MarketSimulation MultiStockModel::generatePricePaths(
+	mt19937& rng,
 	double toDate,
 	int nPaths,
 	int nSteps,
@@ -156,7 +157,7 @@ MarketSimulation MultiStockModel::generatePricePaths(
 
 	// comute paths at subsequent time steps
 	for (int i = 0; i < nSteps; i++) {
-		Matrix epsilons = randn(nPaths, nStocks);
+		Matrix epsilons = randn(rng, nPaths, nStocks);
 		Matrix W = rootDt * epsilons * transpose(A);
 		currentLogStock += driftTerm + W;
 		Matrix currentStock = exp( currentLogStock );
@@ -170,7 +171,7 @@ MarketSimulation MultiStockModel::generatePricePaths(
 	MarketSimulation sim;
 	for (int j = 0; j < nStocks; j++) {
 		auto stockPaths = simulations[j];
-		sim.addStockPaths(stockNames[j], stockPaths);
+		sim.addSimulation(stockNames[j], stockPaths);
 	}
 	return sim;
 }
@@ -198,7 +199,8 @@ static void testCorrectCovarianceMatrix() {
 	MultiStockModel msm = MultiStockModel::createTestModel();
 	int nPaths = 100000;
 	int nSteps = 5;
-	MarketSimulation sim = msm.generatePricePaths(1.0, nPaths, nSteps);
+	mt19937 rng;
+	MarketSimulation sim = msm.generatePricePaths(rng, 1.0, nPaths, nSteps);
 	auto cov = msm.getCovarianceMatrix();
 
 	Matrix x(nPaths, 1);
@@ -206,11 +208,11 @@ static void testCorrectCovarianceMatrix() {
 
 	auto stocks = msm.getStocks();
 	for (int i = 0; i < (int)stocks.size(); i++) {
-		SPCMatrix m = sim.getStockPaths(stocks[i]);	
+		SPCMatrix m = sim.getStockPrices(stocks[i]);	
 		x.setCol(0, *m, nSteps - 1);
 		x.log();
 		for (int j = 0; j < (int)stocks.size(); j++) {
-			SPCMatrix n = sim.getStockPaths(stocks[j]);
+			SPCMatrix n = sim.getStockPrices(stocks[j]);
 			y.setCol(0, *n, nSteps - 1);
 			y.log();
 			x -= meanCols(x)(0,0);

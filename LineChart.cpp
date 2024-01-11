@@ -117,7 +117,6 @@ static void testWriteLineChartData() {
     ASSERT( actual==expected );
 }
 
-
 void testLineChart() {
     TEST( testWriteLineChartData );
 }

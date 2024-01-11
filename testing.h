@@ -10,27 +10,31 @@
 bool isDebugEnabled();
 /*  Enabled/disable debug */
 void setDebugEnabled( bool enabled );
+/** Output a string to the error stream */
+void outputLog(const std::string& ss);
+
+#define OUTPUT_STREAM_NOTATION( A ) { \
+	{ std::stringstream testing_ss_; \
+	testing_ss_ << A; \
+	outputLog(testing_ss_.str()); } \
+}
 
 /*  Log an information statement */
 #define INFO( A ) { \
-    std::cerr << "INFO:\n" << __FILE__ <<":"<<__LINE__ << ":\n" << A <<"\n";\
+	OUTPUT_STREAM_NOTATION("INFO:\n"<<__FILE__<<":"<<__LINE__<<"\n"<<A<<"\n"); \
 }
 
 #define TEST( f ) do {\
-    std::cerr<<"Calling "<<#f<<"()\n"; \
+    OUTPUT_STREAM_NOTATION( "Calling "<<#f<<"()\n" ); \
     try { \
         f(); \
     } catch (...) { \
-        std::cerr<<"\n"; \
-        std::cerr<<"******* "<<#f<<"() FAILED. ********\n";\
-        std::cerr<<"\n"; \
+        OUTPUT_STREAM_NOTATION( "\n" \
+        <<"******* "<<#f<<"() FAILED. ********\n\n" ); \
         exit(1); \
     }\
-    std::cerr<<""<<#f<<"() passed.\n"; \
-    std::cerr<<"\n"; \
+    OUTPUT_STREAM_NOTATION( "Test "<<#f<<"() passed.\n\n" ); \
 } while (false)
-
-
 
 // on windows we define debug mode to be when _DEBUG is set
 #ifdef _DEBUG
@@ -60,7 +64,7 @@ void setDebugEnabled( bool enabled );
 /*  Write A to std:cerr so long as debug is enabled */
 #define DEBUG_PRINT( A ) { \
     if (isDebugEnabled()) { \
-        std::cerr << "DEBUG:\n" << __FILE__ <<":"<<__LINE__ <<":\n"<< A <<"\n";\
+        OUTPUT_STREAM_NOTATION( "DEBUG:\n" << __FILE__ <<":"<<__LINE__ <<":\n"<< A <<"\n");\
     } \
 }
 
@@ -69,7 +73,7 @@ void setDebugEnabled( bool enabled );
         std::stringstream testing_ss_; \
 		testing_ss_ << "ASSERTION FAILED \n"; \
 		testing_ss_ << __FILE__ << ":" << __LINE__ << ":\n" << #c; \
-		std::cerr << testing_ss_.str(); \
+		OUTPUT_STREAM_NOTATION( testing_ss_.str() ); \
 		throw std::runtime_error(testing_ss_.str()); \
     } \
 } while (false)
@@ -81,7 +85,7 @@ void setDebugEnabled( bool enabled );
 		testing_ss_ << "Expected " << (x) << "\n"; \
 		testing_ss_ << "Actual " << (y) << "\n"; \
 		testing_ss_ << __FILE__ << ":" << __LINE__ << ":\n"; \
-		std::cerr << testing_ss_.str(); \
+		OUTPUT_STREAM_NOTATION( testing_ss_.str() ); \
 		throw std::runtime_error(testing_ss_.str()); \
     } \
 } while (false)

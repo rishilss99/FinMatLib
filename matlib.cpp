@@ -3,6 +3,8 @@
 #include "geometry.h"
 #include "LineChart.h"
 #include "Histogram.h"
+#include "RealFunction.h"
+#include "Executor.h"
 
 extern template class LineChart<double>;
 
@@ -210,35 +212,54 @@ Matrix maxOverRows(const Matrix &m)
 
 /*  MersenneTwister random number generator */
 static mt19937 mersenneTwister;
+/*  Mutex to protect static var */
+static mutex rngMutex;
 
-/*  Reset the random number generator. We've borrowed the library call
-    from MATLAB, though we're ignoring the description string */
+/*  Reset the random number generator.
+We ignore the description string */
 void rng(const string &description)
 {
     ASSERT(description == "default");
+    lock_guard<mutex> lock(rngMutex);
     mersenneTwister.seed(mt19937::default_seed);
 }
 
-/*  Create uniformly distributed random numbers using
-    the Mersenne Twister algorithm. See the code above for the answer
-    to the homework excercise which should familiarize you with the C API*/
+/*  Generate random numbers */
 Matrix randuniform(int rows, int cols)
+{
+    lock_guard<mutex> lock(rngMutex);
+    return randuniform(mersenneTwister, rows, cols);
+}
+
+/*  Create uniformly distributed random numbers using
+the Mersenne Twister algorithm. See the code above for the answer
+to the homework excercise which should familiarize you with the C API*/
+Matrix randuniform(mt19937 &random, int rows, int cols)
 {
     Matrix ret(rows, cols, 0);
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < cols; j++)
         {
-            ret(i, j) = (mersenneTwister() + 0.5) / (mersenneTwister.max() + 1.0);
+            ret(i, j) = (random() + 0.5) / (random.max() + 1.0);
         }
     }
     return ret;
 }
 
-/*  Create normally distributed random numbers */
+/**
+ *  Generate random numbers
+ */
 Matrix randn(int rows, int cols)
 {
-    Matrix ret = randuniform(rows, cols);
+    lock_guard<mutex> lock(rngMutex);
+    return randn(mersenneTwister, rows, cols);
+}
+
+/*  Create normally distributed random numbers */
+Matrix randn(mt19937 &random, int rows, int cols)
+{
+    Matrix ret = randuniform(random, rows, cols);
     for (int j = 0; j < cols; j++)
     {
         for (int i = 0; i < rows; i++)
@@ -248,7 +269,6 @@ Matrix randn(int rows, int cols)
     }
     return ret;
 }
-
 /**
  *  Sort the rows of a matrix
  */
@@ -492,26 +512,6 @@ double norminv(double x)
 /**
  *   Evaluate an integral using the rectangle rule
  */
-double integral(RealFunction &f,
-                double a,
-                double b,
-                int nPoints)
-{
-    double h = (b - a) / nPoints;
-    double x = a + 0.5 * h;
-    double total = 0.0;
-    for (int i = 0; i < nPoints; i++)
-    {
-        double y = f.evaluate(x);
-        total += y;
-        x += h;
-    }
-    return h * total;
-}
-
-/**
- *   Overloaded function that takes function object
- */
 double integral(function<double(double)> f,
                 double a,
                 double b,
@@ -527,6 +527,71 @@ double integral(function<double(double)> f,
         x += h;
     }
     return h * total;
+}
+
+double integral2d(function<double(double, double)> f,
+                  double a1,
+                  double a2,
+                  double b1,
+                  double b2,
+                  int nPoints)
+{
+    default_random_engine engine1;
+    uniform_real_distribution<> unifDistribution1(a1, a2);
+    uniform_real_distribution<> unifDistribution2(b1, b2);
+
+    auto gen1 = [&]()
+    { return unifDistribution1(engine1); };
+    auto gen2 = [&]()
+    { return unifDistribution2(engine1); };
+
+    double totalSum = 0;
+    for (auto i = 0; i < nPoints; i++)
+    {
+        double first = gen1();
+        double second = gen2();
+        totalSum += f(first, second);
+    }
+
+    return ((a2 - a1) * (b2 - b1) * totalSum) / static_cast<double>(nPoints);
+}
+
+double integral2d(int nThreads,
+                  function<double(double, double)> f,
+                  double a1,
+                  double a2,
+                  double b1,
+                  double b2,
+                  int nPoints)
+{
+    shared_ptr<Executor> executor = Executor::newInstance(nThreads);
+    vector<double> taskSum(nThreads);
+    int nPointsTask = (nPoints + nThreads - 1) / nThreads;
+    for (auto idx = 0; idx < nThreads; idx++)
+    {
+        auto taskLambda = [&, idx]()
+        {
+            int nPointsCurrTask = min(nPoints, (idx + 1) * nPointsTask) - idx * nPointsTask;
+            if (nPointsCurrTask == 0)
+            {
+                return;
+            }
+            default_random_engine engine;
+            engine.discard(2 * 2 * idx * nPointsTask);
+            uniform_real_distribution<> unifDistribution1(a1, a2);
+            uniform_real_distribution<> unifDistribution2(b1, b2);
+            for (int i = 0; i < nPointsCurrTask; i++)
+            {
+                double first = unifDistribution1(engine);
+                double second = unifDistribution2(engine);
+                taskSum[idx] += f(first, second);
+            }
+        };
+        executor->addTask(taskLambda);
+    }
+    executor->join();
+    double totalSum = accumulate(taskSum.begin(), taskSum.end(), 0.0);
+    return ((a2 - a1) * (b2 - b1) * totalSum) / static_cast<double>(nPoints);
 }
 
 /**
@@ -818,6 +883,62 @@ static void testIntegral()
     ASSERT_APPROX_EQUAL(actual, expected, 0.000001);
 }
 
+double randuniform(default_random_engine &random)
+{
+    return (random() + 0.5) / (random.max() + 1.0);
+}
+
+static void testRandomEngine()
+{
+    mt19937 e1;
+    uniform_real_distribution<> dist(0.0, 10.0);
+    auto iterations = 4;
+    vector<double> sumVec(iterations);
+    double totalSum = 0;
+    for (auto i = 0; i < iterations; i++)
+    {
+        double val = dist(e1);
+        sumVec[i] = val;
+    }
+    totalSum = accumulate(sumVec.begin(), sumVec.end(), 0.0);
+
+    auto nThreads = 4;
+    vector<double> sumThread(nThreads);
+    vector<thread> threadVec(nThreads);
+    auto iterationsThread = (iterations + nThreads - 1) / nThreads;
+    for (auto idx = 0; idx < nThreads; idx++)
+    {
+        threadVec[idx] = thread([&, idx]()
+                                {
+            mt19937 e;
+            uniform_real_distribution<> dist(0.0, 10.0);
+            e.discard(2 * idx * iterationsThread);
+            for(auto i = 0; i < iterationsThread; i++)
+            {
+                double val = dist(e);
+                sumThread[idx] += val;
+            } });
+    }
+
+    for (auto idx = 0; idx < nThreads; idx++)
+    {
+        threadVec[idx].join();
+    }
+
+    double threadTotalSum = accumulate(sumThread.begin(), sumThread.end(), 0.0);
+    ASSERT_APPROX_EQUAL(totalSum, threadTotalSum, 0.1);
+}
+
+static void testIntegral2d()
+{
+    auto func = [](double x, double y)
+    { return x * x + 4 * y; };
+    auto singleThreadedres = integral2d(func, 11, 14, 7, 10, 10000);
+
+    auto multiThreadedres = integral2d(10, func, 11, 14, 7, 10, 10000);
+    ASSERT_APPROX_EQUAL(multiThreadedres, singleThreadedres, 1);
+}
+
 /**
  *  When you create a small class like this, using
  *  nested classes is easier.
@@ -839,12 +960,23 @@ static void testIntegralVersion2()
     ASSERT_APPROX_EQUAL(actual, expected, 0.000001);
 }
 
-static void testIntegralLambdaFunction()
+static void testIntegral3()
 {
-    function<double(double)> integrand = [](double x)
-    { return sqrt(1 + sin(x) * sin(x)); };
-    double actual = integral(integrand, 0, PI, 1000);
-    ASSERT_APPROX_EQUAL(actual, 3.8202, 0.001);
+    auto integrand = [](double x)
+    {
+        return sqrt(1 + pow(sin(x), 2.0));
+    };
+    double res = integral(integrand, 0, PI, 1000);
+    ASSERT_APPROX_EQUAL(res, 3.820197789, 0.001);
+}
+
+static void testInfiniteIntegrals()
+{
+    auto normPDF = [](double x)
+    {
+        return 1 / ROOT_2_PI * exp(-0.5 * x * x);
+    };
+    ASSERT_APPROX_EQUAL(integralOverR(normPDF, 1000), 1.0, 0.01);
 }
 
 static void testBisectMethod()
@@ -942,8 +1074,10 @@ void testMatlib()
     TEST(testNormCdf);
     TEST(testPrctile);
     TEST(testIntegral);
+    TEST(testRandomEngine);
+    TEST(testIntegral2d);
     TEST(testIntegralVersion2);
-    TEST(testIntegralLambdaFunction);
+    TEST(testInfiniteIntegrals);
     TEST(testBisectMethod);
     TEST(testImpliedVolatility);
     TEST(testMaxOverRows);
@@ -954,4 +1088,5 @@ void testMatlib()
     TEST(testSortCols);
     TEST(testTranspose);
     TEST(testChol);
+    TEST(testIntegral3);
 }

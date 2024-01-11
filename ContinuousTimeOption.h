@@ -26,3 +26,6 @@ public:
 	virtual std::set<std::string>
 		getStocks() const = 0;
 };
+
+typedef std::shared_ptr<ContinuousTimeOption> SPContinuousTimeOption;
+typedef std::shared_ptr<const ContinuousTimeOption> SPCContinuousTimeOption;

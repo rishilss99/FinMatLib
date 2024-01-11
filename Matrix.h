@@ -5,11 +5,6 @@
 class Matrix {
 public:
 
-	/*  Container conventions */
-    typedef double value_type;
-	typedef double* iterator;
-	typedef const double* const_iterator;
-
     /**
      *  Constructs a matrix. By default all values
      *  are set to zero
@@ -34,7 +29,7 @@ public:
     }
 
     /**
-     * Retrieve the value at the given index
+     *  Retrieve the value a the given index
      */
     double get( int i, int j ) const {
         return data[ offset(i, j ) ];

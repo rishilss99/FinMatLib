@@ -49,12 +49,6 @@ public:
 		return covarianceMatrix;
 	}
 
-	double getCovarianceStockPair(const std::string& stock1, const std::string &stock2) const{
-		int idx1 = getIndex(stock1);
-		int idx2 = getIndex(stock2);
-		return covarianceMatrix(idx1, idx2);
-	}
-
 	/*  Extract the 1-d sub model for a given
 		stock code */
 	BlackScholesModel getBlackScholesModel(
@@ -67,15 +61,23 @@ public:
 	/*  Returns a simulation up to the given date
 		in the P measure */
 	MarketSimulation generatePricePaths(
+		std::mt19937& rng,
 		double toDate,
 		int nPaths,
 		int nSteps) const;
 	/*  Returns a simulation up to the given date 
 		in the Q measure */
 	MarketSimulation generateRiskNeutralPricePaths(
+		std::mt19937& rng,
 		double toDate,
 		int nPaths,
 		int nSteps) const;
+	/* How many random numbers are needed
+	   to generate the given paths? */
+	long long randSize(long long nPaths,
+					   long long nSteps) {
+		return stockNames.size()*nPaths*nSteps;
+	}
 	/*  For testing it is useful to have a standard
 		dummy name for stocks */
 	static const std::string DEFAULT_STOCK;
@@ -86,7 +88,7 @@ private:
 
 	/*  Mapping from a stock code to the index
 	    used in our matrices */
-	std::unordered_map<std::string, int> stockToIndex;
+	std::unordered_map<std::string, int> stockCodeToIndex;
 	/*  The names of the stocks */
 	std::vector<std::string> stockNames;
 	/*  A column vector of drifts */
@@ -101,6 +103,7 @@ private:
 	double date;
 	/*  Generate price paths with the given drifts */
 	MarketSimulation generatePricePaths(
+		std::mt19937& rng,
 		double toDate,
 		int nPaths,
 		int nSteps,
@@ -109,8 +112,8 @@ private:
 	/*  Gets the index of a given stock in the matrices */
 	int getIndex(const std::string&  stockCode)
 			const {
-		auto pos = stockToIndex.find(stockCode);
-		ASSERT(pos != stockToIndex.end());
+		auto pos = stockCodeToIndex.find(stockCode);
+		ASSERT(pos != stockCodeToIndex.end());
 		int idx = pos->second;
 		return idx;
 	}

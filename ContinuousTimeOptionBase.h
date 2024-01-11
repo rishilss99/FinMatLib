@@ -59,7 +59,7 @@ public:
 	*  Compute the payoff given the a simulation of the market
 	*/
 	Matrix payoff(const MarketSimulation& sim) const {
-		return payoff(*sim.getStockPaths(getStock()));
+		return payoff(*sim.getStockPrices(getStock()));
 	}
 
 	/*  What stocks does the contract depend upon */

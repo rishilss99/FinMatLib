@@ -9,9 +9,9 @@ public:
 	/**
 	 *  Store a simulation
 	 */
-	void addStockPaths(const std::string& stock,
+	void addSimulation(const std::string& stock,
 		SPCMatrix matrix) {
-		stockPaths[stock] = matrix;
+		simulations[stock] = matrix;
 	}
 
 	/**
@@ -19,13 +19,13 @@ public:
 	 *   rows represent different scenarios
 	 *   columns represent different time points
 	 */
-	SPCMatrix getStockPaths( const std::string& stock)
+	SPCMatrix getStockPrices( const std::string& stock)
 		const {
-		auto pos = stockPaths.find(stock);
-		ASSERT(pos != stockPaths.end());
+		auto pos = simulations.find(stock);
+		ASSERT(pos != simulations.end());
 		return pos->second;
 	}
 
 private:
-	std::unordered_map< std::string, SPCMatrix> stockPaths;
+	std::map< std::string, SPCMatrix> simulations;
 };

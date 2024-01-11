@@ -582,7 +582,7 @@ Matrix operator!=(const Matrix& x,  const Matrix&  y) {
     return ret;
 }
 
-/*  Matrix multiplication */
+/*  Matrix product */
 Matrix operator*(const Matrix& a, const Matrix& b) {
 	int m = a.nRows();
 	int r = a.nCols();
@@ -918,54 +918,6 @@ static void testUsageExamples() {
     }
 }
 
-//
-//   Examples of container manipulation
-//  
-
-template <typename T>
-void setZero(T& c) {
-	typename T::iterator i = c.begin();
-	while (i != c.end()) {
-		*i = 0;
-		i++;
-	}
-}
-
-template <typename C>
-typename C::value_type sumContainer(const C& c) {
-	typename C::value_type total = 0;
-	for (auto v : c) {
-		total += v;
-	}
-	return total;
-}
-
-
-
-void testContainer() {
-	Matrix m("1,3;2,4");
-	vector<double> v(m.begin(), m.end());
-	for (int i = 0; i < 4; i++) {
-		ASSERT_APPROX_EQUAL(v[i], i + 1,0.001);
-	}
-
-	ASSERT_APPROX_EQUAL(sumContainer(m), 10.0, 0.001);
-	ASSERT_APPROX_EQUAL(sumContainer(v), 10.0, 0.001);
-
-	setZero(m);
-	vector<double> v2(m.begin(), m.end());
-	for (int i = 0; i < 4; i++) {
-		ASSERT_APPROX_EQUAL(v2[i], 0.0, 0.001);
-	}
-
-	Matrix matrix("1,3;2,4");
-	double total = 0.0;
-	for (auto d : matrix) {
-		total += d;
-	}
-	ASSERT_APPROX_EQUAL(total, 10.0, 0.001);
-}
-
 
 void testMatrix() {
     TEST( testBasics );
@@ -982,5 +934,4 @@ void testMatrix() {
     TEST( testReadFromString );
     TEST( testUsageExamples );
 	TEST( testMatrixMultiplication );
-	TEST(testContainer);
 }

@@ -12,13 +12,14 @@ public:
     int nScenarios;
     /*  The number of steps in the calculation */
     int nSteps;
+	/*  The number of concurrent tasks to run */
+	int nTasks;
     /*  Price a path dependent option */
     double price( const ContinuousTimeOption& option,
                   const BlackScholesModel& model ) const;
 	/*  Price a path dependent option */
 	double price(const ContinuousTimeOption& option,
 		const MultiStockModel& model) const;
-
 };
 
 void testMonteCarloPricer();
