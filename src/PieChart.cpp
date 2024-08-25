@@ -97,8 +97,9 @@ void PieChart::writeAsHTML( ostream& out ) const {
 
 
 void PieChart::writeAsHTML( const string& file ) const {
+    string file_path = "output/" + file;
     ofstream out;
-    out.open(file.c_str());
+    out.open(file_path.c_str());
     writeAsHTML( out );
     out.close();
 }

@@ -80,9 +80,9 @@ void LineChart<T>::writeAsHTML( ostream& out ) const {
 
 template<typename T>
 void LineChart<T>::writeAsHTML( const string& file ) const {
+    string file_path = "output/" + file;
     ofstream out;
-    out.open( file.c_str() );
-    writeAsHTML( out );
+    out.open(file_path.c_str());
     out.close();
 }
 

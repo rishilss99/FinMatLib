@@ -1,18 +1,46 @@
-# Automated Makefile
+# Compiler and Archiver
+CXX = g++
+AR = ar
 
-CC = g++
-CFLAGS = -Wall -Werror -D_GLIBCXX_DEBUG -std=c++14 -g
-COMPILE = $(CC) $(CFLAGS) -c
-OBJFILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-PROG_NAME = FMLib
+# Compiler flags
+CXXFLAGS = -W -fPIC -Iinclude
 
-all: myprog
+# Directories
+SRCDIR = src
+INCDIR = include
+LIBDIR = lib
 
-myprog: $(OBJFILES)
-	$(CC) -o $(PROG_NAME) $(OBJFILES)
+# Library names
+STATIC_LIB = $(LIBDIR)/libFMLib.a
+DYNAMIC_LIB = $(LIBDIR)/libFMLib.so
 
-%.o: %.cpp
-	$(COMPILE) -o $@ $<
-	
+# Source files and object files
+SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(LIBDIR)/%.o,$(SOURCES))
+
+# Default rule to create both static and dynamic libraries
+static_lib: clean $(STATIC_LIB) 
+shared_lib: clean $(DYNAMIC_LIB)
+
+# Rule to create the static library
+$(STATIC_LIB): $(OBJECTS)
+	$(AR) rcs $@ $(OBJECTS)
+
+# Rule to create the dynamic library
+$(DYNAMIC_LIB): $(OBJECTS)
+	$(CXX) -shared -o $@ $(OBJECTS)
+
+# Rule to compile .cpp files into .o files
+$(LIBDIR)/%.o: $(SRCDIR)/%.cpp | $(LIBDIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Create the lib directory if it doesn't exist
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
+
+# Clean up generated files
 clean:
-	rm -f *.o *.html $(PROG_NAME)
+	rm -rf $(LIBDIR)
+
+# Phony targets
+.PHONY: all clean

@@ -119,9 +119,9 @@ void Histogram::writeAsHTML(ostream& out) const {
 }
 
 void Histogram::writeAsHTML(const string& file) const {
-	ofstream out;
-	out.open(file.c_str());
-	writeAsHTML(out);
+    string file_path = "output/" + file;
+    ofstream out;
+    out.open(file_path.c_str());
 	out.close();
 }
 
