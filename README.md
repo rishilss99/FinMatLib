@@ -2,8 +2,8 @@
 
 ## Contents
 * [Overiew](#overview)
-* [Class Structure](#structure)
-* [Component Description](#description)
+* [Class Structure](#class-structure)
+* [Components and Interaction](#components-and-interaction)
 * [Usage](#usage)
 
 ## Overview
@@ -31,7 +31,7 @@ Object Model
 </p>
 <br>
 
-## Components and Their Interaction
+## Components and Interaction
 
 - **BlackScholesModel**: This class models the Black-Scholes framework for a single asset, including the ability to generate price paths under different assumptions, such as real-world and risk-neutral measures.
 
