@@ -33,27 +33,27 @@ Object Model
 
 ## Components and Their Interaction
 
-`BlackScholesModel`: This class models the Black-Scholes framework for a single asset, including the ability to generate price paths under different assumptions, such as real-world and risk-neutral measures.
+- **BlackScholesModel**: This class models the Black-Scholes framework for a single asset, including the ability to generate price paths under different assumptions, such as real-world and risk-neutral measures.
 
-`MultiStockModel`: This class extends the single-asset Black-Scholes model to a multi-asset framework. It handles multiple stocks, their correlations, and allows the generation of simulated price paths across these assets.
+- **MultiStockModel**: This class extends the single-asset Black-Scholes model to a multi-asset framework. It handles multiple stocks, their correlations, and allows the generation of simulated price paths across these assets.
 
-`MarketSimulation`:This class stores and manages simulations of the market, allowing other components to retrieve stock price histories for different scenarios.
+- **MarketSimulation**:This class stores and manages simulations of the market, allowing other components to retrieve stock price histories for different scenarios.
 
-`MonteCarloPricer`: This utility class prices options using Monte Carlo simulations, which involve generating a large number of possible price paths and averaging the payoffs.
+- **MonteCarloPricer**: This utility class prices options using Monte Carlo simulations, which involve generating a large number of possible price paths and averaging the payoffs.
 
-`Priceable`: Interface class to represent different instruments.
+- **Priceable**: Interface class to represent different instruments.
 
-`ContinuousTimeOption`: An interface that defines the basic structure for all continuous-time options, requiring implementations for methods to retrieve maturity, calculate payoffs, and determine path dependency.
+- **ContinuousTimeOption**: An interface that defines the basic structure for all continuous-time options, requiring implementations for methods to retrieve maturity, calculate payoffs, and determine path dependency.
 
-`ContinuousTimeOptionBase`: A base class providing common functionality for continuous-time options, including basic price calculations and payoff methods.
+- **ContinuousTimeOptionBase**: A base class providing common functionality for continuous-time options, including basic price calculations and payoff methods.
 
-`PathIndependentOption`: A specialized option class for path-independent options, which are only dependent on the final stock prices at maturity.
+- **PathIndependentOption**: A specialized option class for path-independent options, which are only dependent on the final stock prices at maturity.
 
-`KnockoutOption`: A class representing knockout options, which cease to exist if the underlying asset's price reaches a certain barrier level.
+- **KnockoutOption**: A class representing knockout options, which cease to exist if the underlying asset's price reaches a certain barrier level.
 
-`Portfolio`: This class represents a collection of financial instruments, allowing for the aggregation and management of multiple `Priceable` objects.
+- **Portfolio**: This class represents a collection of financial instruments, allowing for the aggregation and management of multiple Priceable objects.
 
-`PortfolioImpl`: A concrete implementation of `Portfolio` that manages a collection of securities and their corresponding quantities.
+- **PortfolioImpl**: A concrete implementation of Portfolio that manages a collection of securities and their corresponding quantities.
 
 ## Interaction and Workflow
 
