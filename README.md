@@ -27,7 +27,7 @@ The architecture of is influenced by several design patterns:
 <p align="center">
 <img src="data/Final_UMLv2.png" width="800" height="400"/> 
 <br>
-Object Model
+UML Object Model
 </p>
 <br>
 
